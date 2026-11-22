@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { canManage, useAuth } from '../auth/AuthContext';
 import { 
   Brain, 
   Trophy, 
@@ -13,9 +14,10 @@ import './Home.css';
 
 const Home = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const startQuiz = () => {
-    navigate('/quiz');
+    navigate(user ? '/quiz' : '/login');
   };
 
   return (
@@ -50,9 +52,9 @@ const Home = () => {
 
             <button
               className="explore-button"
-              onClick={() => navigate('/view')}
+              onClick={() => navigate(canManage(user) ? '/view' : user ? '/quiz' : '/signup')}
             >
-              Explore Questions
+              {canManage(user) ? 'Manage Questions' : user ? 'Your Quizzes' : 'Create Account'}
             </button>
           </div>
 

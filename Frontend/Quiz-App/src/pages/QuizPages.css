@@ -1,0 +1,146 @@
+.quiz-page {
+  text-align: left;
+  padding: 32px 24px 48px;
+  color: #e5e7eb;
+}
+
+.quiz-page h1,
+.quiz-page h2 {
+  margin: 0 0 8px;
+  color: #f8fafc;
+}
+
+.quiz-lead {
+  margin: 0 0 24px;
+  color: #94a3b8;
+}
+
+.quiz-grid {
+  display: grid;
+  grid-template-columns: minmax(260px, 340px) 1fr;
+  gap: 24px;
+}
+
+.panel {
+  background: #11182d;
+  border: 1px solid rgba(167, 139, 250, 0.22);
+  border-radius: 18px;
+  padding: 20px;
+}
+
+.panel label {
+  display: block;
+  margin: 12px 0 6px;
+  font-size: 14px;
+  color: #cbd5e1;
+}
+
+.panel input,
+.panel select,
+.panel textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #334155;
+  background: #0b1020;
+  color: #f8fafc;
+}
+
+.primary-btn,
+.ghost-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  border: 0;
+  border-radius: 12px;
+  padding: 10px 16px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.primary-btn {
+  background: linear-gradient(90deg, #7c3aed, #0891b2);
+  color: white;
+}
+
+.ghost-btn {
+  background: transparent;
+  color: #e2e8f0;
+  border: 1px solid #475569;
+}
+
+.primary-btn:disabled,
+.ghost-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.quiz-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.quiz-card,
+.question-card,
+.option-row {
+  border: 1px solid #334155;
+  border-radius: 14px;
+  padding: 14px 16px;
+  background: #0b1020;
+}
+
+.quiz-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.status {
+  margin-top: 12px;
+  color: #86efac;
+}
+
+.status.error {
+  color: #fca5a5;
+}
+
+.option-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.option-row.selected {
+  border-color: #7c3aed;
+}
+
+.quiz-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.score-box {
+  text-align: center;
+  padding: 28px 12px;
+}
+
+.score-box strong {
+  display: block;
+  font-size: 48px;
+  color: #c4b5fd;
+}
+
+@media (max-width: 800px) {
+  .quiz-grid,
+  .quiz-card {
+    grid-template-columns: 1fr;
+    display: grid;
+  }
+}

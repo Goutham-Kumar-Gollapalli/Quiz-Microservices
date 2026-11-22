@@ -1,96 +1,86 @@
-import React from 'react'
-import { useState } from 'react'
+import React, { useState } from 'react';
+import { api } from '../api';
+import './QuizPages.css';
+
+const emptyQuestion = {
+  category: '',
+  questionTitle: '',
+  option1: '',
+  option2: '',
+  option3: '',
+  option4: '',
+  correctAnswer: ''
+};
+
 const QuestionsForm = () => {
-  const [question,setQuestion]=useState({
-    questionTitle:"",
-    option1: "",
-    option2: "",
-    option3: "",
-    option4: "",
-    correctAnswer: ""
-  });
-  function handleChange(e){
-    setQuestion({
-        ...question,
-        [e.target.name]:e.target.value
-    });
-    console.log("question : ",question);
-}
-    async function handleSubmit(e)
-    {
-        e.preventDefault();
-        try{
-            const response=await fetch("http://localhost:8091/quiz/add",{
-                method:"POST",
-                headers:{
-                    "Content-Type":"application/json"
-                },
-                body:JSON.stringify(question)
-            });
-            if(!response.ok){
-                console.log("failed to add the question");
-            }
-            else{
-                console.log("added question successfully");
-            }
-        }
-        catch(error){
-            console.log(error);
-            
-        }
-        console.log("final question : ",question);
+  const [question, setQuestion] = useState(emptyQuestion);
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  function handleChange(event) {
+    setQuestion({ ...question, [event.target.name]: event.target.value });
+  }
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+    setMessage('');
+    setError('');
+    setBusy(true);
+    try {
+      await api('/question/add', { method: 'POST', body: question });
+      setMessage('Question added.');
+      setQuestion(emptyQuestion);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBusy(false);
     }
-  
-    return (
-    <div>
-        <form className='question-form' onSubmit={(e)=>handleSubmit(e)}>
-            <h2 className='question'>Question</h2>
-            <div>
-                <label>Category</label>
-                <input type="text" name='category' 
-                onChange={handleChange}/>
-            </div>
-            <div className='question-title'>
-                <label htmlFor="title">Question</label>
-                <input type="text" name='questionTitle' 
-                onChange={handleChange}/>
-            </div>
-            <div>
-                <label>option 1</label>
-                <input type="text" name='option1' onChange={(e)=>setQuestion({...question,option1:e.target.value})}/>
-            </div>
-            <div>
-                <label>option 2</label>
-                <input type="text" name='option2' onChange={handleChange}/>
-            </div>
-            <div>
-                <label>option 3</label>
-                <input type="text" name='option3' onChange={handleChange}/>
-            </div>
-            <div>
-                <label>option 4</label>
-                <input type="text" name='option4' onChange={handleChange}/>
-            </div>
-        
-            <div>
-                    <label>Correct Answer:</label>
-                    <select
-                        name="correctAnswer"
-                        value={question.correctAnswer}
-                        onChange={handleChange}
-                    >
-                        <option value="">Select Answer</option>
-                        <option value={question.option1}>Option 1:{question.option1}</option>
-                        <option value={question.option2}>Option 2:{question.option2}</option>
-                        <option value={question.option3}>Option 3:{question.option3}</option>
-                        <option value={question.option4}>Option 4::{question.option4}</option>
-                    </select>
-                </div>
+  }
 
-            <button type='submit'>Add Question</button>
-        </form>
+  const options = [question.option1, question.option2, question.option3, question.option4]
+    .filter(Boolean);
+
+  return (
+    <div className="quiz-page">
+      <h1>Add a question</h1>
+      <p className="quiz-lead">Teachers use these questions when they create a quiz by category.</p>
+      <form className="panel" onSubmit={handleSubmit}>
+        <label htmlFor="category">Category</label>
+        <input id="category" name="category" value={question.category} onChange={handleChange} required />
+
+        <label htmlFor="questionTitle">Question</label>
+        <input id="questionTitle" name="questionTitle" value={question.questionTitle} onChange={handleChange} required />
+
+        {['option1', 'option2', 'option3', 'option4'].map((name, index) => (
+          <div key={name}>
+            <label htmlFor={name}>Option {index + 1}</label>
+            <input id={name} name={name} value={question[name]} onChange={handleChange} required />
+          </div>
+        ))}
+
+        <label htmlFor="correctAnswer">Correct answer</label>
+        <select
+          id="correctAnswer"
+          name="correctAnswer"
+          value={question.correctAnswer}
+          onChange={handleChange}
+          required
+        >
+          <option value="">Select the correct option</option>
+          {options.map((option) => (
+            <option key={option} value={option}>{option}</option>
+          ))}
+        </select>
+
+        {message && <p className="status">{message}</p>}
+        {error && <p className="status error">{error}</p>}
+        <button className="primary-btn" type="submit" disabled={busy}>
+          {busy ? 'Saving...' : 'Add question'}
+        </button>
+      </form>
     </div>
-  )
-}
+  );
+};
 
-export default QuestionsForm
+export default QuestionsForm;

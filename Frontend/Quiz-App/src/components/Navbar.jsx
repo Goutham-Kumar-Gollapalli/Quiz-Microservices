@@ -1,6 +1,7 @@
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
+import { canManage, useAuth } from '../auth/AuthContext';
 import {
   Swords,
   Home,
@@ -9,7 +10,6 @@ import {
   UserPlus,
   Brain,
   Trophy,
-  LayoutDashboard,
   CirclePlus,
   BookOpen,
   UserCircle,
@@ -20,32 +20,14 @@ import './Navbar.css';
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
+  const { user, logout } = useAuth();
 
-  useEffect(() => {
-    const loadUser = () => {
-      try {
-        const savedUser = localStorage.getItem('quizbattleUser');
-        setUser(savedUser ? JSON.parse(savedUser) : null);
-      } catch {
-        setUser(null);
-      }
-    };
-
-    loadUser();
-    window.addEventListener('storage', loadUser);
-
-    return () => window.removeEventListener('storage', loadUser);
-  }, []);
-
-  const logout = () => {
-    localStorage.removeItem('quizbattleUser');
-    localStorage.removeItem('token');
-    setUser(null);
+  const handleLogout = () => {
+    logout();
     navigate('/');
   };
 
-  const isAdmin = user?.role?.toUpperCase() === 'ADMIN';
+  const isManager = canManage(user);
   const isLoggedIn = Boolean(user);
 
   const linkClass = ({ isActive }) =>
@@ -85,37 +67,25 @@ const Navbar = () => {
           </>
         )}
 
-        {isLoggedIn && !isAdmin && (
+        {isLoggedIn && (
           <>
             <NavLink to="/quiz" className={linkClass}>
               <Brain size={17} />
               Take Quiz
             </NavLink>
-
             <NavLink to="/results" className={linkClass}>
               <Trophy size={17} />
               My Results
             </NavLink>
-
-            <NavLink to="/leaderboard" className={linkClass}>
-              <Trophy size={17} />
-              Leaderboard
-            </NavLink>
           </>
         )}
 
-        {isLoggedIn && isAdmin && (
+        {isLoggedIn && isManager && (
           <>
-            <NavLink to="/admin" className={linkClass}>
-              <LayoutDashboard size={17} />
-              Dashboard
-            </NavLink>
-
             <NavLink to="/add" className={linkClass}>
               <CirclePlus size={17} />
               Create Questions
             </NavLink>
-
             <NavLink to="/view" className={linkClass}>
               <BookOpen size={17} />
               Manage Questions
@@ -128,9 +98,9 @@ const Navbar = () => {
         <div className="nav-user">
           <UserCircle size={21} />
           <span className="user-name">
-            {user.name || (isAdmin ? 'Admin' : 'Student')}
+            {user.name || (isManager ? 'Teacher' : 'Student')}
           </span>
-          <button className="logout-button" onClick={logout}>
+          <button className="logout-button" onClick={handleLogout}>
             <LogOut size={17} />
             Logout
           </button>

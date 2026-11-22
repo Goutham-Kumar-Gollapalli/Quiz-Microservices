@@ -1,6 +1,8 @@
 
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { api } from '../api';
+import { useAuth } from '../auth/AuthContext';
 import {
   Swords,
   UserRound,
@@ -16,18 +18,20 @@ import './Auth.css';
 
 const Signup = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [role,setRole]=useState("");
+  const [role, setRole] = useState('STUDENT');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
@@ -41,8 +45,19 @@ const Signup = () => {
       return;
     }
 
-    // Connect this form to your Spring Boot registration API.
-    setError('Registration API is not connected yet.');
+    setBusy(true);
+    try {
+      const data = await api('/auth/register', {
+        method: 'POST',
+        body: { name, email, password, role }
+      });
+      login(data);
+      navigate('/');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
@@ -173,8 +188,8 @@ const Signup = () => {
 
           {error && <p className="auth-error">{error}</p>}
 
-          <button type="submit" className="auth-submit">
-            Create Account
+          <button type="submit" className="auth-submit" disabled={busy}>
+            {busy ? 'Creating account...' : 'Create Account'}
             <ArrowRight size={19} />
           </button>
         </form>

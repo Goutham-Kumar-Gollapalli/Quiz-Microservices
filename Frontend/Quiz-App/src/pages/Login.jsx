@@ -1,6 +1,8 @@
 
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { api } from '../api';
+import { useAuth } from '../auth/AuthContext';
 import {
   Swords,
   Mail,
@@ -15,19 +17,30 @@ import './Auth.css';
 
 const Login = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-
-    // Connect this form to your Spring Boot login API.
-    setError('Login API is not connected yet.');
+    setBusy(true);
+    try {
+      const data = await api('/auth/login', {
+        method: 'POST',
+        body: { email, password }
+      });
+      login(data);
+      navigate('/');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
@@ -68,10 +81,7 @@ const Login = () => {
             />
           </div>
 
-          <div className="auth-label-row">
-            <label htmlFor="login-password">Password</label>
-            <Link to="/forgot-password">Forgot password?</Link>
-          </div>
+          <label htmlFor="login-password">Password</label>
 
           <div className="auth-input-wrapper">
             <LockKeyhole size={19} />
@@ -95,19 +105,10 @@ const Login = () => {
             </button>
           </div>
 
-          <label className="auth-checkbox">
-            <input
-              type="checkbox"
-              checked={rememberMe}
-              onChange={(e) => setRememberMe(e.target.checked)}
-            />
-            <span>Remember me</span>
-          </label>
-
           {error && <p className="auth-error">{error}</p>}
 
-          <button type="submit" className="auth-submit">
-            Log In
+          <button type="submit" className="auth-submit" disabled={busy}>
+            {busy ? 'Logging in...' : 'Log In'}
             <ArrowRight size={19} />
           </button>
         </form>

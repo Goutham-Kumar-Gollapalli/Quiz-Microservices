@@ -2,6 +2,7 @@ package com.gmax.quiz_service.controller;
 
 
 import com.gmax.quiz_service.model.QuestionWrapper;
+import com.gmax.quiz_service.model.Quiz;
 import com.gmax.quiz_service.model.QuizDto;
 import com.gmax.quiz_service.model.Response;
 import com.gmax.quiz_service.service.QuizService;
@@ -17,8 +18,13 @@ public class QuizController {
     @Autowired
     QuizService quizService;
     @PostMapping("create")
-    public ResponseEntity<String>createQuiz(@RequestBody QuizDto quizDto){
-        return quizService.createQuiz(quizDto.getCategory(),quizDto.getNumQ(),quizDto.getTitle());
+    public ResponseEntity<Quiz> createQuiz(@RequestBody QuizDto quizDto){
+        return quizService.createQuiz(quizDto.getCategory(), quizDto.getNumQ(), quizDto.getTitle());
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<Quiz>> getAll() {
+        return quizService.getAll();
     }
 
     @GetMapping("/get/{id}")

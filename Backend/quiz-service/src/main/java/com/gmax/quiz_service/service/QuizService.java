@@ -2,7 +2,6 @@ package com.gmax.quiz_service.service;
 
 import com.gmax.quiz_service.Feign.QuizInterface;
 import com.gmax.quiz_service.Repository.QuizRepository;
-import com.gmax.quiz_service.model.Question;
 import com.gmax.quiz_service.model.QuestionWrapper;
 import com.gmax.quiz_service.model.Quiz;
 import com.gmax.quiz_service.model.Response;
@@ -11,9 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class QuizService {
@@ -23,14 +20,22 @@ public class QuizService {
     @Autowired
     QuizInterface quizInterface;
 
-    public ResponseEntity<String> createQuiz(String category, int numQ, String title) {
+    public ResponseEntity<Quiz> createQuiz(String category, Integer numQ, String title) {
+        if (category == null || category.isBlank() || title == null || title.isBlank() || numQ == null || numQ <= 0) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        List<Long> questions = quizInterface.getQuestionsForQuiz(category, numQ).getBody();
+        if (questions == null || questions.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        Quiz quiz = new Quiz();
+        quiz.setTitle(title);
+        quiz.setQuestionsIds(questions);
+        return new ResponseEntity<>(quizRepository.save(quiz), HttpStatus.CREATED);
+    }
 
-        List<Long>questions= quizInterface.getQuestionsForQuiz(category,numQ).getBody();
-        Quiz q=new Quiz();
-        q.setTitle(title);
-        q.setQuestionsIds(questions);
-        quizRepository.save(q);
-        return new ResponseEntity<>("successfully created quiz", HttpStatus.OK);
+    public ResponseEntity<List<Quiz>> getAll() {
+        return new ResponseEntity<>(quizRepository.findAll(), HttpStatus.OK);
     }
 
     public ResponseEntity<List<QuestionWrapper>> getQuestions(Long id) {
